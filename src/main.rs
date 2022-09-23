@@ -6,6 +6,10 @@ use std::time::Duration;
 
 use colored::*;
 
+use ws2818_rgb_led_spi_driver::adapter_gen::WS28xxAdapter;
+use ws2818_rgb_led_spi_driver::adapter_spi::WS28xxSpiAdapter;
+use ws2818_rgb_led_spi_driver::encoding::encode_rgb;
+
 const UNIVERSE1: u16 = 1;
 const TIMEOUT: Option<Duration> = Some(Duration::from_secs(30)); // A timeout of None means blocking behaviour, some indicates the actual timeout.
 
@@ -16,30 +20,25 @@ fn main() {
 
     dmx_rcv.listen_universes(&[UNIVERSE1]).unwrap();
 
-    // b, r, g
+    let mut adapter = WS28xxSpiAdapter::new("/dev/spidev0.0").unwrap();
 
     loop {
         // .recv(TIMEOUT) handles processing synchronised as-well as normal data.
         match dmx_rcv.recv(TIMEOUT) {
             Err(e) => {
-                // Print out the error.
                 println!("{:?}", e);
             }
             Ok(p) => {
-                print!("{}", "\n");
-                // Print out the data.
-                // println!("{:?}", p);
-                // TODO: Add logic to convert [R1, G1, B1, R2, G2, B2 ...] into [(R, G, B), (R, G, B)]
+                let mut spi_encoded_rgb_bits = vec![];
                 for n in 0..100 {
                     let i = n * 3;
-                    // println!("{:?}", p[0].values[i]);
                     let r = p[0].values[i + 1];
                     let g = p[0].values[i + 2];
                     let b = p[0].values[i];
-                    print!("{}", "■".truecolor(r, g, b));
+
+                    spi_encoded_rgb_bits.extend_from_slice(&encode_rgb(r, g, b));
                 }
-                // TODO: Install https://crates.io/crates/ws2818-rgb-led-spi-driver and get it working so that we can actually display the dmx data on the led strip
-                // TODO: Minimise computations to as little as possible to enchance performence
+                adapter.write_encoded_rgb(&spi_encoded_rgb_bits).unwrap();
             }
         }
     }
