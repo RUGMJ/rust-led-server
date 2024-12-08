@@ -21,9 +21,9 @@
 
 ## Usage
 
-`rust-led-server {number of leds}`
+`led-server {number of leds}`
 
 ### Example
 
-`rust-led-server 170`
+`led-server 170`
 

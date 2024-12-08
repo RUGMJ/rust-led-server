@@ -1,5 +1,5 @@
 [package]
-name = "rust-led-server"
+name = "led-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 sacn-unofficial = "0.9.0"
 ws2818-rgb-led-spi-driver = "2.0.0"
+
