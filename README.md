@@ -1,4 +1,4 @@
-# Rust led server
+# Led Server
 > Led server written in rust
 
 ## Setup
